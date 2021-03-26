@@ -1,0 +1,47 @@
+- hosts: lb
+  vars_prompt:
+  - name: lb_port
+    prompt: Enter load balancer port number
+    private: no
+
+  tasks:
+   - file:
+          state: directory
+          path: "/dvd1"
+   - mount:
+          src: "/dev/cdrom"
+          path: "/dvd1"
+          state: mounted
+          fstype: "iso9660"
+   - yum_repository:
+          baseurl: "/dvd1/AppStream"
+          name: "mydvd1"
+          description: "dvd1 for pacakge"
+          gpgcheck: no
+   - yum_repository:
+          baseurl: "/dvd1/BaseOS"
+          name: "mydvd2"
+          description: "dvd2 for package"
+          gpgcheck: no
+
+
+   - firewalld:
+          port: "{{ lb_port }}/tcp"
+          permanent: yes
+          state: enabled
+          immediate: yes
+
+   - package:
+          name: "haproxy"
+          state: present
+   - name: "copy file to conf file"
+     template:
+            src: "haproxy.cfg"
+            dest: "/etc/haproxy/haproxy.cfg"
+   - name: "start httpd service"
+     service:
+            name: "haproxy"
+            state: started
+            enabled: yes
+
+

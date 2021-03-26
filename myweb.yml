@@ -1,0 +1,20 @@
+- hosts: myweb
+  tasks:
+  - name: "httpd service"
+    package:
+            name: "httpd"
+            state: present
+  - name: "php service"
+    package:
+            name: "php"
+            state: present
+  - copy:
+          src: "/root/ansible_playbook/HaProxy/webpage/"
+          dest: "/var/www/html/"
+
+  - name: "start httpd service"
+    service:
+            name: "httpd"
+            state: restarted
+
+
